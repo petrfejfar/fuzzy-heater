@@ -1,28 +1,67 @@
-import time
+class InfiniteFuzzySet:
+
+    def __init__(self, values):
+        """
+            values = [-10, -5, 0, 5, 10]
+        """
+        self._values = values
+
+    def fuzzificate(self, value):
+        # create empty membership
+        result = dict((x, 0) for x in self._values)
+
+        if(value <= self._values[0]):
+                result[self._values[0]] = 1
+                return result
+
+        if(value >= self._values[-1]):
+                result[self._values[-1]] = 1
+                return result
+
+        left_index = 0
+        right_index = 1
+
+        while (self._values[right_index] < value):
+            left_index += 1
+            right_index += 1
+
+        left_val = self._values[left_index]
+        right_val = self._values[right_index]
+
+        print(left_val, ", ", right_val)
+
+        result[right_val] = float(value-left_val)/(right_val-left_val)
+        result[left_val] = float(right_val-value)/(right_val-left_val)
+
+        return result
 
 
-class PIDController:
-    kP = 1.0
-    kI = 1.0
-    kD = 1.0
+class ValueFuzzySet:
 
-    last_temp = 0
-    diff_temp = 0
-    sum_temp = 0
-    curr_temp = 0
+    def __init__(self, values, interval_width):
+        """
+            values = [-10, -5, 0, 5, 10]
+        """
+        self._values = values
+        self._interval_width = interval_width
 
-    def setConstants(self, p, i, d):
-        self.kP = p
-        self.kI = i
-        self.kD = d
+    def defuccificate(self, weights):
+        """
+            weights = [0, 0.3, 0.2, 0, 1]
+        """
 
-    def update(self, value, timespan):
-        self.diff_temp = (value - self.last_temp) / timespan
-        self.sum_temp += self.diff_temp
-        self.last_temp = self.curr_temp
-        self.curr_temp = value
+        strengths = list(map(lambda w: w*self._interval_width*(2-w)/2.0, weights))
+        center_of_gravity = sum(map(lambda x: x[0]*x[1], zip(strengths, self._values)))/sum(strengths)
 
-        return self.__getValue()
+        return center_of_gravity
 
-    def __getValue(self):
-        return self.kP * (self.curr_temp - self.last_temp) + self.kI * self.sum_temp + self.kD * self.diff_temp
+class GainFuzzySet:
+
+    def __init__(self, low, high):
+        self._low = low
+        self._high = high
+
+    def fuzzificate(self, value):
+
+
+        low_member =

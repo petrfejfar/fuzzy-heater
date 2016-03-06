@@ -1,7 +1,7 @@
 import time
 
 
-class Controller:
+class DummyController:
     # driver is class of
     def runController(self, driver):
         # do very basic work
