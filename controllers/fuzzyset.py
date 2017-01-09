@@ -85,6 +85,4 @@ class GainFuzzySet:
         self._high = high
 
     def fuzzificate(self, value):
-
-
-        low_member =
+        pass

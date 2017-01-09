@@ -35,8 +35,9 @@ if(__name__ == "__main__"):
         driver = SimulationDriver()
         # driver = RPiDriver()
         # c = DummyController()
-        c = PIDController()
-        c.runController(driver)
+        # c = PIDController(33.0)
+        c = FuzzyController(33.0)
+        c.runController(driver, 5.0)
     finally:
         driver.close()
 

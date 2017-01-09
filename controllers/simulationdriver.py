@@ -22,9 +22,8 @@
 
 from random import random
 import threading
-from time import sleep
+from time import sleep, time
 import matplotlib.pyplot as plt
-import datetime
 
 
 class SimulationDriver:
@@ -34,15 +33,17 @@ class SimulationDriver:
     heater_power = 25  # Watt
     enviroment_temp = 23.0  # Celsius
 
-    # model
-    actual_temp = 23.0  # Celsius
-    power_ratio = 0.0  # ratio
-
     def __init__(self):
         # tuples (date, heat set)
         self.heat_log = []
 
         self.lock = threading.Lock()
+
+        # model
+        self.actual_temp = 23.0  # Celsius
+        self.power_ratio = 0.0  # ratio
+
+        self.start_time = time()
 
         # run background simulation
         self.model_thread = threading.Thread(target=self.update_state)
@@ -63,8 +64,8 @@ class SimulationDriver:
             if(index != 0 and index != 1):
                 raise Exception("Invalid thermometer index.")
 
-        sleep(1)
-        return self.actual_temp + random() - 0.5
+        sleep(0.5)
+        return self.actual_temp  # + random() - 0.5
 
     # ratio is interval 0.0 to 1.0
     # 0.0 means turn off
@@ -73,7 +74,8 @@ class SimulationDriver:
     def heat(self, ratio):
         with self.lock:
             self.power_ratio = ratio
-            self.heat_log.append((datetime.datetime.now(), ratio))
+            t = time() - self.start_time
+            self.heat_log.append((t, ratio))
 
             if(ratio < 0.0 or ratio > 1.0):
                 raise Exception("Argument ratio out of range.")
@@ -103,9 +105,9 @@ class SimulationDriver:
         temp1_log = []
         temp2_log = []
         while True:
-
-            temp1_log.append((datetime.datetime.now(), self.temperature(0)))
-            temp2_log.append((datetime.datetime.now(), self.temperature(1)))
+            t = time() - self.start_time
+            temp1_log.append((t, self.temperature(0)))
+            temp2_log.append((t, self.temperature(1)))
 
             # draw
             plt.clf()
@@ -123,7 +125,7 @@ class SimulationDriver:
                     plt.plot(val, date, color="blue", aa=True, label="heat")
             plt.savefig("history.png")
 
-            sleep(2)
+            sleep(0.1)
 
     def close(self):
         pass
